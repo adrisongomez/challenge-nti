@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+    id String @db.Uuid @id @default(uuid())
+    firstName String
+    lastName String
+    email String @unique
+    password String
+    customers Customer[]
+    invoices Invoice[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    createdBy String
+    down Boolean?
+    downBy String?
+    downAt DateTime?
+}
+
+model Customer{
+    id String @db.Uuid @id @default(uuid())
+    firstName String
+    lastName String
+    address String
+    phoneNumber String
+    personalId String @unique
+    email String @unique
+    gender Gender @default(OTHERS)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    createdBy String
+    createdByUser User @relation(fields: [createdBy], references: [email])
+    down Boolean?
+    downBy String?
+    downAt DateTime?
+    invoices Invoice[]
+}
+
+model Product {
+    id String @db.Uuid @id @default(uuid())
+    title String
+    description String
+    cost_price String
+    retail_price String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    createdBy String
+    down Boolean?
+    downBy String?
+    downAt DateTime?
+    lineItems LineItem[]
+}
+
+model LineItem {
+    id String @db.Uuid @id @default(uuid())
+    productId String @db.Uuid
+    invoiceId String @db.Uuid
+    invoice Invoice @relation(fields: [invoiceId], references:[id])
+    product Product @relation(fields: [productId], references: [id])
+    product_price String
+    sell_price String
+    discount_price String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    createdBy String
+    down Boolean?
+    downBy String?
+    downAt DateTime?
+}
+
+model Invoice {
+    id String @db.Uuid @id @default(uuid())
+    customerId String @db.Uuid
+    notes String? @db.Text
+    status InvoiceStatus
+    pay_type InvoicePayType
+    customer Customer @relation(fields: [customerId], references: [id])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    createdBy String
+    createdByUser User @relation(fields: [createdBy], references: [email])
+    down Boolean?
+    downBy String?
+    downAt DateTime?
+    lineItems LineItem[]
+}
+
+
+enum Gender {
+    MALE
+    FEMALE
+    OTHERS
+}
+
+enum InvoicePayType {
+    CASH
+    CREDICT_CARD
+    CHECK
+    DEBT
+}
+
+enum InvoiceStatus {
+    OPEN
+    CLOSE
+}
