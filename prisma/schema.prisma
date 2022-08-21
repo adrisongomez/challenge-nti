@@ -16,8 +16,6 @@ model User {
     lastName String
     email String @unique
     password String
-    customers Customer[]
-    invoices Invoice[]
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     createdBy String
@@ -38,7 +36,6 @@ model Customer{
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     createdBy String
-    createdByUser User @relation(fields: [createdBy], references: [email])
     down Boolean?
     downBy String?
     downAt DateTime?
@@ -46,7 +43,7 @@ model Customer{
 }
 
 model Product {
-    id String @db.Uuid @id @default(uuid())
+    id Int @id @default(autoincrement())
     title String
     description String
     cost_price String
@@ -62,7 +59,7 @@ model Product {
 
 model LineItem {
     id String @db.Uuid @id @default(uuid())
-    productId String @db.Uuid
+    productId Int
     invoiceId String @db.Uuid
     invoice Invoice @relation(fields: [invoiceId], references:[id])
     product Product @relation(fields: [productId], references: [id])
@@ -87,7 +84,6 @@ model Invoice {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     createdBy String
-    createdByUser User @relation(fields: [createdBy], references: [email])
     down Boolean?
     downBy String?
     downAt DateTime?
