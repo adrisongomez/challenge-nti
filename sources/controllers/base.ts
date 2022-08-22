@@ -11,7 +11,7 @@ export interface CRUDbase<T, C = {}, U = {}, F = {}> {
 export abstract class Controller {
   private _client: PrismaClient;
   private _user: string;
-  constructor(client: PrismaClient, user: string = 'system') {
+  constructor(client: PrismaClient, user: string = "system") {
     this._client = client;
     this._user = user;
   }
@@ -23,7 +23,7 @@ export abstract class Controller {
     throw Error("Client is not initialized");
   }
 
-  get user (){
-        return this._user;
-    }
+  get user() {
+    return this._user;
+  }
 }

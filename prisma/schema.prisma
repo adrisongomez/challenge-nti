@@ -2,94 +2,94 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 model User {
-    id String @db.Uuid @id @default(uuid())
+    id        String    @id @default(uuid()) @db.Uuid
     firstName String
-    lastName String
-    email String @unique
-    password String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    lastName  String
+    email     String    @unique
+    password  String
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
     createdBy String
-    down Boolean?
-    downBy String?
-    downAt DateTime?
+    down      Boolean?
+    downBy    String?
+    downAt    DateTime?
 }
 
-model Customer{
-    id String @db.Uuid @id @default(uuid())
-    firstName String
-    lastName String
-    address String
+model Customer {
+    id          String    @id @default(uuid()) @db.Uuid
+    firstName   String
+    lastName    String
+    address     String
     phoneNumber String
-    personalId String @unique
-    email String @unique
-    gender Gender @default(OTHERS)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    createdBy String
-    down Boolean?
-    downBy String?
-    downAt DateTime?
-    invoices Invoice[]
+    personalId  String    @unique
+    email       String    @unique
+    gender      Gender    @default(OTHERS)
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    createdBy   String
+    down        Boolean?
+    downBy      String?
+    downAt      DateTime?
+    invoices    Invoice[]
 }
 
 model Product {
-    id Int @id @default(autoincrement())
-    title String
-    description String
-    cost_price String
+    id           Int        @id @default(autoincrement())
+    title        String
+    description  String
+    cost_price   String
     retail_price String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    createdBy String
-    down Boolean?
-    downBy String?
-    downAt DateTime?
-    lineItems LineItem[]
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @updatedAt
+    createdBy    String
+    down         Boolean?
+    downBy       String?
+    downAt       DateTime?
+    lineItems    LineItem[]
 }
 
 model LineItem {
-    id String @db.Uuid @id @default(uuid())
-    productId Int
-    invoiceId String @db.Uuid
-    invoice Invoice @relation(fields: [invoiceId], references:[id])
-    product Product @relation(fields: [productId], references: [id])
-    product_price String
-    sell_price String
+    id             String    @id @default(uuid()) @db.Uuid
+    productId      Int
+    invoiceId      String    @db.Uuid
+    invoice        Invoice   @relation(fields: [invoiceId], references: [id])
+    product        Product   @relation(fields: [productId], references: [id])
+    product_price  String
+    sell_price     String
     discount_price String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    createdBy String
-    down Boolean?
-    downBy String?
-    downAt DateTime?
+    tax            String
+    createdAt      DateTime  @default(now())
+    updatedAt      DateTime  @updatedAt
+    createdBy      String
+    down           Boolean?
+    downBy         String?
+    downAt         DateTime?
 }
 
 model Invoice {
-    id String @db.Uuid @id @default(uuid())
-    customerId String @db.Uuid
-    notes String? @db.Text
-    status InvoiceStatus
-    pay_type InvoicePayType
-    customer Customer @relation(fields: [customerId], references: [id])
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    createdBy String
-    down Boolean?
-    downBy String?
-    downAt DateTime?
-    lineItems LineItem[]
+    id         String         @id @default(uuid()) @db.Uuid
+    customerId String         @db.Uuid
+    notes      String?        @db.Text
+    status     InvoiceStatus
+    pay_type   InvoicePayType
+    customer   Customer       @relation(fields: [customerId], references: [id])
+    createdAt  DateTime       @default(now())
+    updatedAt  DateTime       @updatedAt
+    createdBy  String
+    down       Boolean?
+    downBy     String?
+    downAt     DateTime?
+    lineItems  LineItem[]
 }
-
 
 enum Gender {
     MALE
