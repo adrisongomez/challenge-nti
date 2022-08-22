@@ -1,12 +1,18 @@
 import {
+  Customer,
   Invoice,
   InvoicePayType,
-  InvoiceStatus,
   LineItem,
+  Product,
 } from "@prisma/client";
 
+export interface FullLineItem extends LineItem {
+  product: Product;
+}
+
 export interface FullInvoice extends Invoice {
-  lineItems: LineItem[];
+  customer: Customer;
+  lineItems: FullLineItem[];
 }
 
 export type CreateInvoice = {
@@ -16,9 +22,20 @@ export type CreateInvoice = {
   lineItems: CreateLineItem[];
 };
 
+export type UpdateInvoice = {
+  updateLineItem?: UpdateLineItem[];
+  removeLineItem?: string[];
+  addLineItem?: CreateLineItem[];
+};
+
+export type UpdateLineItem = {
+  sell_price?: string;
+  discount_price?: string;
+  tax?: string;
+};
+
 export type CreateLineItem = {
   productId: number;
-  product_price: string;
   sell_price: string;
   discount_price: string;
   tax: string;
