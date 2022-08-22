@@ -5,7 +5,7 @@ import { createCustomer, CreateCustomer, UpdateCustomer } from "./utils";
 import { removeUndefined } from "sources/utils/commons";
 
 
-export default class CustomerCRUDController
+export default class CustomerController
     extends Controller
     implements
     CRUDbase<

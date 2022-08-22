@@ -1,11 +1,17 @@
 import { createUser } from './seeds/users'
 import { PrismaClient } from '@prisma/client'
+import { createCustomer } from './seeds/customers'
+import { createProduct } from './seeds/products'
 
 const client = new PrismaClient()
 
 const main = async () => {
     console.log('creating users for seed')
     await createUser(client)
+    console.log('creating customers for seed')
+    await createCustomer(client)
+    console.log('creating products for seed')
+    await createProduct(client)
 }
 
 main().catch((error) => {
