@@ -2,18 +2,26 @@ import { CRUDbase, Controller } from "@controllers/base";
 import CustomerController from "@controllers/customers";
 import { ControllerError } from "@controllers/error";
 import ProductController from "@controllers/products";
-import { PrismaClient } from "@prisma/client";
+import { Invoice, Prisma, PrismaClient } from "@prisma/client";
+import { removeUndefined } from "sources/utils/commons";
 import {
   CreateInvoice,
   CreateLineItem,
   FullInvoice,
   FullLineItem,
   UpdateInvoice,
+  UpdateLineItem,
 } from "./utils";
 
 export default class InvoiceController
   extends Controller
-  implements CRUDbase<FullInvoice, CreateInvoice, UpdateInvoice>
+  implements
+    CRUDbase<
+      FullInvoice,
+      CreateInvoice,
+      UpdateInvoice,
+      Prisma.InvoiceWhereInput
+    >
 {
   private productController: ProductController;
   private customerController: CustomerController;
@@ -24,9 +32,14 @@ export default class InvoiceController
   }
   async findById(id: string): Promise<FullInvoice> {
     if (!id) throw new ControllerError("ID is not defined");
-    const invoice = await this.client.invoice.findUnique({
+    const invoice = await this.client.invoice.findFirst({
       where: {
-        id,
+        id: {
+          equals: id,
+        },
+        down: {
+          equals: null,
+        },
       },
       include: {
         customer: true,
@@ -89,19 +102,72 @@ export default class InvoiceController
       await Promise.all(promises);
     }
     if (payload?.updateLineItem) {
+      const updateCallback = ({ id, ...values }: UpdateLineItem) => {
+        const valueProcessed = removeUndefined(values);
+        return this.client.lineItem.update({
+          where: {
+            id,
+          },
+          data: valueProcessed,
+        });
+      };
+      const promises = payload.updateLineItem.map(updateCallback.bind(this));
+      await Promise.all(promises);
     }
     if (payload?.removeLineItem) {
+      const updateCallback = (id: string) =>
+        this.client.lineItem.delete({
+          where: {
+            id: id,
+          },
+        });
+      const promises = payload.removeLineItem.map(updateCallback.bind(this));
+      await Promise.all(promises);
     }
 
     return this.findById(id);
   }
 
-  delete(id: string): Promise<boolean> {
-    throw new Error("Method not implemented.");
+  async delete(id: string): Promise<boolean> {
+    const response = await this.client.invoice.update({
+      where: {
+        id,
+      },
+      data: {
+        down: true,
+        downAt: new Date(),
+        downBy: this.user,
+      },
+      include: {
+        lineItems: true,
+      },
+    });
+    for await (const lineItem of response.lineItems) {
+      await this.client.lineItem.update({
+        where: {
+          id: lineItem.id,
+        },
+        data: {
+          down: true,
+          downAt: new Date(),
+          downBy: this.user,
+        },
+      });
+    }
+    return !!response.down;
   }
 
-  list(filter?: {}): Promise<FullInvoice[]> {
-    throw new Error("Method not implemented.");
+  async list(filter?: Prisma.InvoiceWhereInput): Promise<FullInvoice[]> {
+    const invoices = await this.client.invoice.findMany({
+      where: {
+        ...filter,
+        down: {
+          equals: null,
+        },
+      },
+    });
+    const findCallback = ({ id }: Invoice) => this.findById(id);
+    return Promise.all(invoices.map(findCallback.bind(this)));
   }
 
   private async createLineItem({

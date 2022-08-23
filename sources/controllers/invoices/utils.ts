@@ -29,6 +29,7 @@ export type UpdateInvoice = {
 };
 
 export type UpdateLineItem = {
+  id: string,
   sell_price?: string;
   discount_price?: string;
   tax?: string;

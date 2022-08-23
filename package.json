@@ -12,7 +12,7 @@
         "lint": "next lint",
         "storybook": "start-storybook -p 6006 -s ./public",
         "build-storybook": "build-storybook -s public",
-        "test": "jest"
+        "test": "jest --runInBand"
     },
     "dependencies": {
         "@chakra-ui/react": "^2.2.8",

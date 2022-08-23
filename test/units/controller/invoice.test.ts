@@ -6,7 +6,7 @@ import {
   UpdateLineItem,
 } from "@controllers/invoices/utils";
 import { faker } from "@faker-js/faker";
-import { Customer, Invoice, LineItem, Product } from "@prisma/client";
+import { Customer, Invoice, LineItem, Prisma, Product } from "@prisma/client";
 import { prismaMock } from "@test/mockPrisma";
 
 describe("InvoiceController unit happy path", () => {
@@ -83,7 +83,7 @@ describe("InvoiceController unit happy path", () => {
 
   it("should find an invoice from id", async () => {
     const invoiceId = faker.datatype.uuid();
-    prismaMock.invoice.findUnique.mockResolvedValue({
+    prismaMock.invoice.findFirst.mockResolvedValue({
       id: invoiceId,
       customerId: faker.datatype.uuid(),
       notes: "This is a note",
@@ -134,7 +134,7 @@ describe("InvoiceController unit happy path", () => {
     const payload: UpdateInvoice = {
       addLineItem: [lineItemPayload],
     };
-    prismaMock.invoice.findUnique.mockResolvedValue({
+    prismaMock.invoice.findFirst.mockResolvedValue({
       id: invoiceId,
       customerId: faker.datatype.uuid(),
       notes: "This is a note",
@@ -178,11 +178,158 @@ describe("InvoiceController unit happy path", () => {
     expect(response.customer).toBeDefined();
   });
   it("should update a lineItem to an invoice", async () => {
-        const invoiceId = faker.datatype.uuid()
-        const lineItemPayload: UpdateLineItem = {
-            sell_price: faker.commerce.price(),
-        }
+    const invoiceId = faker.datatype.uuid();
+    const lineItemPayload: UpdateLineItem = {
+      id: faker.datatype.uuid(),
+      sell_price: faker.commerce.price(),
+    };
 
-        prismaMock.product.update.mockResolvedValue({} as LineItem)
-    })
+    prismaMock.product.findUnique.mockResolvedValue({
+      id: 1,
+      product_price: faker.commerce.price(),
+    } as unknown as Product);
+    prismaMock.lineItem.update.mockResolvedValue({
+      ...lineItemPayload,
+    } as LineItem);
+    prismaMock.invoice.findFirst.mockResolvedValue({
+      id: invoiceId,
+      customerId: faker.datatype.uuid(),
+      notes: "This is a note",
+      status: "CLOSE",
+      pay_type: "CASH",
+      customer: {} as Customer,
+      lineItems: [
+        {
+          productId: 1,
+          product: {} as Product,
+          product_price: faker.commerce.price(),
+          sell_price: lineItemPayload.sell_price,
+          tax: faker.commerce.price(),
+          discount_price: faker.commerce.price(),
+          createdBy: "system",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          down: null,
+          downAt: new Date(),
+          downBy: null,
+        },
+      ],
+      createdBy: "system",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      down: null,
+      downAt: new Date(),
+      downBy: null,
+    } as Invoice);
+    const response = await controller.update(invoiceId, {
+      updateLineItem: [lineItemPayload],
+    });
+    expect(prismaMock.lineItem.update).toBeCalled();
+    expect(prismaMock.product.findUnique).toBeCalled();
+    expect(response.id).toBe(invoiceId);
+    expect(response.lineItems).toHaveLength(1);
+    expect(response.lineItems[0].sell_price).toBe(lineItemPayload.sell_price);
+  });
+
+  it("should delete a lineItem from an invoice", async () => {
+    const removeLineItems: string[] = [faker.datatype.uuid()];
+    const invoiceId = faker.datatype.uuid();
+    prismaMock.product.findUnique.mockResolvedValue({
+      id: 1,
+      product_price: faker.commerce.price(),
+    } as unknown as Product);
+    prismaMock.lineItem.delete.mockResolvedValue({} as LineItem);
+    prismaMock.invoice.findFirst.mockResolvedValue({
+      id: invoiceId,
+      customerId: faker.datatype.uuid(),
+      notes: "This is a note",
+      status: "CLOSE",
+      pay_type: "CASH",
+      customer: {} as Customer,
+      lineItems: [],
+      createdBy: "system",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      down: null,
+      downAt: new Date(),
+      downBy: null,
+    } as Invoice);
+    const response = await controller.update(invoiceId, {
+      removeLineItem: removeLineItems,
+    });
+    expect(prismaMock.lineItem.delete).toBeCalled();
+    expect(response.id).toBe(invoiceId);
+    expect(response.lineItems).toHaveLength(0);
+  });
+
+  it("should delete an invoice", async () => {
+    const invoiceId = faker.datatype.uuid();
+    prismaMock.invoice.update.mockResolvedValue({
+      lineItems: [{ id: faker.datatype.uuid() } as LineItem],
+      down: true,
+      downAt: new Date(),
+      downBy: "system",
+    } as Invoice & { lineItems: LineItem[] });
+    prismaMock.lineItem.update.mockResolvedValue({} as LineItem);
+
+    const response = await controller.delete(invoiceId);
+    expect(prismaMock.invoice.update).toBeCalled();
+    expect(response).toBe(true);
+  });
+
+  it("should lists invoices", async () => {
+    const filters: Prisma.InvoiceWhereInput = {
+      AND: [
+        {
+          createdAt: {
+            gte: new Date(),
+          },
+        },
+        {
+          createdAt: {
+            lte: new Date(),
+          },
+        },
+      ],
+    };
+    prismaMock.invoice.findMany.mockResolvedValue([
+      { id: faker.datatype.uuid() } as Invoice,
+      { id: faker.datatype.uuid() } as Invoice,
+    ]);
+    prismaMock.invoice.findFirst.mockResolvedValue({
+      id: faker.datatype.uuid(),
+      customerId: faker.datatype.uuid(),
+      notes: "This is a note",
+      status: "CLOSE",
+      pay_type: "CASH",
+      customer: {} as Customer,
+      lineItems: [
+        {
+          productId: 1,
+          product: {} as Product,
+          product_price: faker.commerce.price(),
+          sell_price: faker.commerce.price(),
+          tax: faker.commerce.price(),
+          discount_price: faker.commerce.price(),
+          createdBy: "system",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          down: null,
+          downAt: new Date(),
+          downBy: null,
+        },
+      ],
+      createdBy: "system",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      down: null,
+      downAt: new Date(),
+      downBy: null,
+    } as Invoice);
+    prismaMock.product.findUnique.mockResolvedValue({} as Product);
+
+    const response = await controller.list(filters);
+
+    expect(response).toHaveLength(2);
+  });
 });

@@ -61,8 +61,8 @@ model LineItem {
     id             String    @id @default(uuid()) @db.Uuid
     productId      Int
     invoiceId      String    @db.Uuid
-    invoice        Invoice   @relation(fields: [invoiceId], references: [id])
-    product        Product   @relation(fields: [productId], references: [id])
+    invoice        Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade )
+    product        Product   @relation(fields: [productId], references: [id], onDelete: NoAction )
     product_price  String
     sell_price     String
     discount_price String
