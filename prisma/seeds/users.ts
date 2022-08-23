@@ -7,7 +7,7 @@ const users: CreateUser[] = [
   {
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),
-    email: "example@example.com",
+    email: "test@example.com",
     password: hash("12345678", { algorithm: "sha1" }),
   },
 ];
