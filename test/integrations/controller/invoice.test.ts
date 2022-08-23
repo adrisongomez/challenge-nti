@@ -145,6 +145,6 @@ describe("InvoiceController integration happy path", () => {
   });
   it("should list invoices", async () => {
     const invoices = await controller.list();
-    expect(invoices).toHaveLength(1);
+    expect(invoices).toHaveLength(3);
   });
 });
