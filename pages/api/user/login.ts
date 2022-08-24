@@ -15,7 +15,6 @@ const onPost: HandlerFunction<UserController> = async (
   if (!controller) throw new HandlerError("Controller not initilized");
   const { email, password } = req.body as { email: string; password: string };
   const response = await controller.login(email, password);
-  console.log(response)
   res.status(StatusCodes.OK).json(response);
 };
 

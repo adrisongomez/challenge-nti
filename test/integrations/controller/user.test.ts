@@ -1,8 +1,9 @@
 import prisma from "@clients/prisma"
-import UserController, { hash } from "@controllers/users"
+import UserController from "@controllers/users"
 import { CreateUser, UpdateUser } from "@controllers/users/utils"
 import { faker } from "@faker-js/faker"
 import { User } from "@prisma/client"
+import { hash, verifyHash } from "sources/utils/authentication/password"
 
 describe("UserController integration test happy path", () => {
     let controller: UserController
@@ -16,7 +17,7 @@ describe("UserController integration test happy path", () => {
                 firstName: faker.name.firstName(),
                 lastName: faker.name.lastName(),
                 email: faker.internet.email(),
-                password: faker.internet.password(),
+                password: hash(faker.internet.password()),
                 createdBy: 'system',
             }
         })
@@ -53,7 +54,7 @@ describe("UserController integration test happy path", () => {
         expect(response.lastName).toBe(payload.lastName)
         expect(response.email).toBe(payload.email)
         expect(response.createdBy).toBe("system")
-        expect(response.password === hash(payload.password)).toBeTruthy()
+        expect(verifyHash(payload.password, response.password)).toBeTruthy()
 
         await prisma.user.delete({
             where: {

@@ -9,13 +9,11 @@ import {
   UpdateUser,
   userSchema,
 } from "./utils";
-import hashFunc from "object-hash";
 import {
   getAccessToken,
   getRefreshToken,
 } from "sources/utils/authentication/jwt";
-
-export const hash = (text: string): string => hashFunc(text, { algorithm: "sha1" })
+import { hash, verifyHash } from "sources/utils/authentication/password";
 
 export default class UserController
   extends Controller
@@ -82,10 +80,9 @@ export default class UserController
 
   async login(email: string, password: string): Promise<LoginResponse> {
     const user = await this.findByEmail(email);
-    // const hashPassword = hash(password);
-    // console.log('here')
-    // console.log(hashPassword, user.password)
-    // if (hashPassword !== user.password) {
+    const isValid = verifyHash(password, user.password);
+    console.log(isValid);
+    // if (!isValid) {
     //   throw new AuthenticationError("User not authorized");
     // }
     const accessToken = getAccessToken(user);

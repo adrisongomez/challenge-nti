@@ -1,14 +1,14 @@
 import { CreateUser } from "../../sources/controllers/users/utils";
 import { faker } from "@faker-js/faker";
 import { PrismaClient } from "@prisma/client";
-import hash from "object-hash";
+import { hash } from "../../sources/utils/authentication/password";
 
 const users: CreateUser[] = [
   {
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),
     email: "test@example.com",
-    password: hash("12345678", { algorithm: "sha1" }),
+    password: hash("12345678"),
   },
 ];
 
