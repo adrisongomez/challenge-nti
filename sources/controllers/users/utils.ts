@@ -1,3 +1,4 @@
+import { User } from "@prisma/client";
 import { object, string } from "yup";
 
 export type CreateUser = {
@@ -20,3 +21,11 @@ export const userSchema = object({
     email: string().email().required(),
     password: string().min(8).required(),
 })
+
+export type LoginResponse = {
+    user: User;
+    accessToken: string;
+    refreshToken: string;
+}
+
+export class AuthenticationError extends Error {}
