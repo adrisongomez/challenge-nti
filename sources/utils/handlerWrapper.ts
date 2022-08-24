@@ -1,6 +1,7 @@
 import { Controller } from "@controllers/base";
 import { NextApiRequest, NextApiResponse } from "next";
 import { StatusCodes } from "http-status-codes";
+import { verifyIfAccessToken } from "./authentication/jwt";
 
 export type HandlerFunction<T extends Controller> = (
   request: NextApiRequest,
@@ -14,9 +15,11 @@ interface HandlerWrapperOptions<T extends Controller> {
   onDelete?: HandlerFunction<T>;
   onGet?: HandlerFunction<T>;
   controller?: T;
+  secure?: HttpMethod[];
 }
 
 export class HandlerError extends Error {}
+export class TokenError extends Error {}
 
 enum HttpMethod {
   POST = "POST",
@@ -29,6 +32,17 @@ export const createHandlerWrapper =
   <T extends Controller>(options: HandlerWrapperOptions<T> = {}) =>
   async (request: NextApiRequest, response: NextApiResponse) => {
     try {
+      if (options?.secure?.includes(request?.method as HttpMethod)) {
+        const token = request?.headers?.authorization?.split(" ")[0];
+        if (!token) throw new TokenError("Access Token not defined");
+        const payload = verifyIfAccessToken(token);
+        if (!payload) {
+          throw new TokenError("Access Token invalid");
+        }
+        if (options.controller) {
+          options.controller.user = payload.email;
+        }
+      }
       switch (request.method) {
         case HttpMethod.POST:
           if (!options.onPost) {
@@ -65,7 +79,12 @@ export const createHandlerWrapper =
           .status(StatusCodes.NOT_FOUND)
           .json({ errors: [(error as HandlerError).message] });
       }
-      console.warn(error)
+      if (error instanceof TokenError) {
+        return response
+          .status(StatusCodes.UNAUTHORIZED)
+          .json({ error: "Not authorized" });
+      }
+      console.warn(error);
       return response
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .json({ error: "Unkwon error, please contact support", trace: error });
