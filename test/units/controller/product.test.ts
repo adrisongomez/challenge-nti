@@ -2,7 +2,6 @@ import { prismaMock } from "@test/mockPrisma";
 import ProductController from "@controllers/products";
 import { CreateProduct, UpdateProduct } from "@controllers/products/utils";
 import { faker } from "@faker-js/faker";
-import { create } from "domain";
 import { Product } from "@prisma/client";
 
 const createProduct = (): CreateProduct => ({
