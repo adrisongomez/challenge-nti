@@ -7,6 +7,7 @@ import {
   createHandlerWrapper,
   HandlerError,
   HandlerFunction,
+  HttpMethod,
 } from "sources/utils/handlerWrapper";
 
 type CustomerHandler = HandlerFunction<CustomerController>;
@@ -29,4 +30,5 @@ export default createHandlerWrapper<CustomerController>({
   onGet,
   onPost,
   controller: new CustomerController(prisma),
+  secure: [HttpMethod.POST]
 });

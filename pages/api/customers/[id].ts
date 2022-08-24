@@ -6,6 +6,7 @@ import {
   createHandlerWrapper,
   HandlerError,
   HandlerFunction,
+  HttpMethod,
 } from "sources/utils/handlerWrapper";
 
 type CustomerHandler = HandlerFunction<CustomerController>;
@@ -37,4 +38,5 @@ export default createHandlerWrapper<CustomerController>({
   onPut,
   onDelete,
   controller: new CustomerController(prisma),
+  secure: [HttpMethod.DELETE, HttpMethod.PUT]
 });

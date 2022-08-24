@@ -21,7 +21,7 @@ interface HandlerWrapperOptions<T extends Controller> {
 export class HandlerError extends Error {}
 export class TokenError extends Error {}
 
-enum HttpMethod {
+export enum HttpMethod {
   POST = "POST",
   GET = "GET",
   PUT = "PUT",
@@ -32,8 +32,8 @@ export const createHandlerWrapper =
   <T extends Controller>(options: HandlerWrapperOptions<T> = {}) =>
   async (request: NextApiRequest, response: NextApiResponse) => {
     try {
-      if (options?.secure?.includes(request?.method as HttpMethod)) {
-        const token = request?.headers?.authorization?.split(" ")[0];
+      if (options.secure?.find((method) => request.method === method)) {
+        const token = request?.headers?.authorization?.split(" ")[1];
         if (!token) throw new TokenError("Access Token not defined");
         const payload = verifyIfAccessToken(token);
         if (!payload) {

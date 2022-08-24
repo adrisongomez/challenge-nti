@@ -13,12 +13,14 @@ import { Customer, Product } from "@prisma/client";
 import httpClient from "@test/httpClient";
 import { AxiosResponse } from "axios";
 import { StatusCodes } from "http-status-codes";
+import { getAccessToken } from "sources/utils/authentication/jwt";
 
 describe("Invoice API integration test", () => {
   let controller: InvoiceController;
   let invoice: FullInvoice;
   let customer: Customer;
   let products: Product[];
+  let accessToken: string;
   beforeAll(async () => {
     const result = await prisma.customer.findFirst();
     products = await prisma.product.findMany({ take: 3 });
@@ -26,6 +28,9 @@ describe("Invoice API integration test", () => {
     customer = result;
     if (products.length === 0) throw new Error("Product must exists");
     controller = new InvoiceController(prisma, "test@example.com");
+    const user = await prisma.user.findFirst();
+    if (!user) throw new Error("User must exists");
+    accessToken = `Bearer ${getAccessToken(user)}`;
   });
   afterAll(async () => {
     prisma.$disconnect();
@@ -76,7 +81,11 @@ describe("Invoice API integration test", () => {
       any,
       AxiosResponse<FullInvoice>,
       CreateInvoice
-    >("/api/invoices", payload);
+    >("/api/invoices", payload, {
+      headers: {
+        authorization: accessToken,
+      },
+    });
     expect(status).toBe(StatusCodes.CREATED);
     expect(data.id).toBeDefined();
     expect(data.customer).toBeDefined();
@@ -87,7 +96,12 @@ describe("Invoice API integration test", () => {
 
   it("should delete an invoice => DELETE /api/invoice/:id", async () => {
     const { data, status } = await httpClient.delete(
-      `/api/invoices/${invoice.id}`
+      `/api/invoices/${invoice.id}`,
+      {
+        headers: {
+          authorization: accessToken,
+        },
+      }
     );
     expect(status).toBe(StatusCodes.OK);
     expect(data).toBeTruthy();
@@ -106,7 +120,11 @@ describe("Invoice API integration test", () => {
       any,
       AxiosResponse<FullInvoice>,
       UpdateInvoice
-    >(`/api/invoices/${invoice.id}`, payload);
+    >(`/api/invoices/${invoice.id}`, payload, {
+      headers: {
+        authorization: accessToken,
+      },
+    });
     expect(status).toBe(StatusCodes.OK);
     expect(data.id).toBe(invoice.id);
     expect(data.lineItems).not.toHaveLength(invoice.lineItems.length);

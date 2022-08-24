@@ -9,6 +9,7 @@ import { faker } from "@faker-js/faker";
 import { Customer } from "@prisma/client";
 import httpClient from "@test/httpClient";
 import { StatusCodes } from "http-status-codes";
+import { getAccessToken } from "sources/utils/authentication/jwt";
 
 const createCustomer = (): CreateCustomer => {
   return {
@@ -24,12 +25,23 @@ const createCustomer = (): CreateCustomer => {
 describe("Customer CRUD handler happy path", () => {
   let controller: CustomerController;
   let customer: Customer;
-  beforeAll(() => {
+  beforeAll(async () => {
     controller = new CustomerController(prisma, "test@example.com");
+    const user = await prisma.user.findFirst();
+    if (!user) throw new Error("Users must exist");
+    const accessToken = `Bearer ${getAccessToken(user)}`;
+    const header = {
+      authorization: accessToken,
+    };
+    httpClient.defaults.headers.post = header;
+    httpClient.defaults.headers.put = header;
+    httpClient.defaults.headers.delete = header;
   });
+
   afterAll(() => {
     prisma.$disconnect();
   });
+
   beforeEach(async () => {
     customer = await controller.create(createCustomer());
   });

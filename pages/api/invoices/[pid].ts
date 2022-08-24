@@ -6,6 +6,7 @@ import {
   createHandlerWrapper,
   HandlerError,
   HandlerFunction,
+  HttpMethod,
 } from "sources/utils/handlerWrapper";
 
 type InvoiceHandler = HandlerFunction<InvoiceController>;
@@ -39,4 +40,5 @@ export default createHandlerWrapper({
   onDelete,
   onPut,
   controller,
+  secure: [HttpMethod.PUT, HttpMethod.DELETE],
 });

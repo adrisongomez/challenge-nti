@@ -6,6 +6,7 @@ import {
   createHandlerWrapper,
   HandlerError,
   HandlerFunction,
+  HttpMethod,
 } from "sources/utils/handlerWrapper";
 
 type InvoiceHandler = HandlerFunction<InvoiceController>;
@@ -22,4 +23,5 @@ const controller = new InvoiceController(prisma);
 export default createHandlerWrapper({
   onPost,
   controller,
+  secure: [HttpMethod.POST]
 });
