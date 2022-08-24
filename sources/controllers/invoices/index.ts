@@ -30,7 +30,7 @@ export default class InvoiceController
     this.productController = new ProductController(this.client, this.user);
     this.customerController = new CustomerController(this.client, this.user);
   }
-  async findById(id: string): Promise<FullInvoice> {
+  async findById(id?: string): Promise<FullInvoice> {
     if (!id) throw new ControllerError("ID is not defined");
     const invoice = await this.client.invoice.findFirst({
       where: {

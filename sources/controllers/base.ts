@@ -1,7 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 
 export interface CRUDbase<T, C = {}, U = {}, F = {}> {
-  findById(id: string): Promise<T>;
+  findById(id?: string): Promise<T>;
   create(payload: C): Promise<T>;
   update(id: string, payload: U): Promise<T>;
   delete(id: string): Promise<boolean>;
@@ -25,5 +25,8 @@ export abstract class Controller {
 
   get user() {
     return this._user;
+  }
+  set user(newUser: string) {
+    this._user = newUser;
   }
 }

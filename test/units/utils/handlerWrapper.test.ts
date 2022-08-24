@@ -2,7 +2,7 @@ import { Controller } from "@controllers/base";
 import { prismaMock } from "@test/mockPrisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { createRequest, createResponse, MockResponse } from "node-mocks-http";
-import { createHandlerWrapper } from "sources/utils/wrapperHandler";
+import { createHandlerWrapper } from "sources/utils/handlerWrapper";
 
 let request: NextApiRequest;
 let response: NextApiResponse;

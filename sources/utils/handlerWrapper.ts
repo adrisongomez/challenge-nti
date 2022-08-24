@@ -1,13 +1,14 @@
 import { Controller } from "@controllers/base";
 import { NextApiRequest, NextApiResponse } from "next";
+import { StatusCodes } from "http-status-codes";
 
-type HandlerFunction<T extends Controller | any> = (
+export type HandlerFunction<T extends Controller> = (
   request: NextApiRequest,
   response: NextApiResponse,
   controller?: T
 ) => Promise<void> | void;
 
-interface HandlerWrapperOptions<T extends Controller | any> {
+interface HandlerWrapperOptions<T extends Controller> {
   onPut?: HandlerFunction<T>;
   onPost?: HandlerFunction<T>;
   onDelete?: HandlerFunction<T>;
@@ -15,17 +16,17 @@ interface HandlerWrapperOptions<T extends Controller | any> {
   controller?: T;
 }
 
-class HandlerError extends Error {}
+export class HandlerError extends Error {}
 
 enum HttpMethod {
-    POST="POST",
-    GET="GET",
-    PUT="PUT",
-    DELETE="DELETE"
+  POST = "POST",
+  GET = "GET",
+  PUT = "PUT",
+  DELETE = "DELETE",
 }
 
 export const createHandlerWrapper =
-  <T extends Controller | any>(options: HandlerWrapperOptions<T> = {}) =>
+  <T extends Controller>(options: HandlerWrapperOptions<T> = {}) =>
   async (request: NextApiRequest, response: NextApiResponse) => {
     try {
       switch (request.method) {
@@ -60,7 +61,16 @@ export const createHandlerWrapper =
       }
     } catch (error) {
       if (typeof error === typeof new HandlerError()) {
-        response.status(404).json({ errors: [(error as HandlerError).message] });
+        return response
+          .status(StatusCodes.NOT_FOUND)
+          .json({ errors: [(error as HandlerError).message] });
+      }
+      return response
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ error: "Unkwon error, please contact support", trace: error });
+    } finally {
+      if (options.controller) {
+        options.controller.client.$disconnect();
       }
     }
   };
