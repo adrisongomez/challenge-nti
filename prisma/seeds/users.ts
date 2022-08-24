@@ -8,7 +8,7 @@ const users: CreateUser[] = [
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),
     email: "test@example.com",
-    password: hash("12345678"),
+    password: "12345678",
   },
 ];
 
@@ -20,9 +20,11 @@ export const createUser = async (prisma: PrismaClient): Promise<void> => {
       },
     });
     if (userRecord) continue;
+    const  hashPassword = await hash(user.password)
     await prisma.user.create({
       data: {
         ...user,
+        password: hashPassword,
         createdBy: "system",
       },
     });

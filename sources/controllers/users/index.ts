@@ -12,6 +12,7 @@ import {
 import {
   getAccessToken,
   getRefreshToken,
+  verifyIfRefreshToken,
 } from "sources/utils/authentication/jwt";
 import { hash, verifyHash } from "sources/utils/authentication/password";
 
@@ -31,13 +32,14 @@ export default class UserController
   }
 
   async create(payload: CreateUser): Promise<User> {
+    const hashPassword = await hash(payload.password);
     userSchema.validate(payload);
     return this.client.user.create({
       data: {
         firstName: payload.firstName,
         lastName: payload.lastName,
         email: payload.email,
-        password: hash(payload.password),
+        password: hashPassword,
         createdBy: this.user,
       },
     });
@@ -80,11 +82,10 @@ export default class UserController
 
   async login(email: string, password: string): Promise<LoginResponse> {
     const user = await this.findByEmail(email);
-    const isValid = verifyHash(password, user.password);
-    console.log(isValid);
-    // if (!isValid) {
-    //   throw new AuthenticationError("User not authorized");
-    // }
+    const isValid = await verifyHash(password, user.password);
+    if (!isValid) {
+      throw new AuthenticationError("User not authorized");
+    }
     const accessToken = getAccessToken(user);
     const refreshToken = getRefreshToken(user);
     return {
@@ -104,5 +105,20 @@ export default class UserController
     });
     if (!user) throw new ControllerError("User not find with email: " + email);
     return user;
+  }
+
+  async refreshToken(token: string): Promise<LoginResponse> {
+    const payload = verifyIfRefreshToken(token);
+    if (!payload) {
+      throw new AuthenticationError("Token not valid");
+    }
+    const user = await this.findById(payload.id);
+    const accessToken = getAccessToken(user);
+    const refreshToken = getRefreshToken(user);
+    return {
+      accessToken,
+      refreshToken,
+      user: user,
+    };
   }
 }

@@ -13,19 +13,17 @@ const onPost: HandlerFunction<UserController> = async (
   res,
   controller
 ) => {
+  const { refreshToken } = req.body;
+  if (!controller) throw new HandlerError("Controller is not initialized");
   try {
-    if (!controller) throw new HandlerError("Controller not initilized");
-    const { email, password } = req.body as { email: string; password: string };
-    const response = await controller.login(email, password);
+    const response = await controller.refreshToken(refreshToken);
     res.status(StatusCodes.OK).json(response);
   } catch (error) {
-    if (typeof error === typeof new AuthenticationError()) {
-      return res
-        .status(StatusCodes.FORBIDDEN)
-        .json({ error: "Not valid credentials" });
+    if (error instanceof AuthenticationError) {
+      return res.status(StatusCodes.OK).json({ error: "Not valid accessToken" });
     }
     console.warn(error);
-    throw error;
+    throw error
   }
 };
 

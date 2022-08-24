@@ -60,11 +60,12 @@ export const createHandlerWrapper =
           );
       }
     } catch (error) {
-      if (typeof error === typeof new HandlerError()) {
+      if (error instanceof HandlerError) {
         return response
           .status(StatusCodes.NOT_FOUND)
           .json({ errors: [(error as HandlerError).message] });
       }
+      console.warn(error)
       return response
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .json({ error: "Unkwon error, please contact support", trace: error });

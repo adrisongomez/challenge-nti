@@ -12,12 +12,13 @@ describe("UserController integration test happy path", () => {
         controller = new UserController(prisma)
     })
     beforeEach(async () => {
+        const hashPassword = await hash(faker.internet.password())
         user = await prisma.user.create({
             data: {
                 firstName: faker.name.firstName(),
                 lastName: faker.name.lastName(),
                 email: faker.internet.email(),
-                password: hash(faker.internet.password()),
+                password: hashPassword,
                 createdBy: 'system',
             }
         })
@@ -54,7 +55,7 @@ describe("UserController integration test happy path", () => {
         expect(response.lastName).toBe(payload.lastName)
         expect(response.email).toBe(payload.email)
         expect(response.createdBy).toBe("system")
-        expect(verifyHash(payload.password, response.password)).toBeTruthy()
+        expect(verifyHash(payload.password, response.password)).resolves.toBeTruthy()
 
         await prisma.user.delete({
             where: {
