@@ -1,11 +1,16 @@
-import '../styles/globals.css'
-import type { AppProps } from 'next/app'
-import {ChakraProvider} from '@chakra-ui/react'
+import "../styles/globals.css";
+import type { AppProps } from "next/app";
+import { ChakraProvider } from "@chakra-ui/react";
+import { AuthenticationProvider } from "sources/providers/authentication";
 
-function MyApp({ Component, pageProps }: AppProps) {
-  return (<ChakraProvider>
+function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
+  return (
+    <ChakraProvider>
+      <AuthenticationProvider>
         <Component {...pageProps} />
-    </ChakraProvider >)
+      </AuthenticationProvider>
+    </ChakraProvider>
+  );
 }
 
-export default MyApp
+export default MyApp;

@@ -1,12 +1,22 @@
-import type { NextPage } from 'next'
-import {Container, Heading} from '@chakra-ui/react'
+import { Center, Text } from "@chakra-ui/react";
+import type { NextPage } from "next";
+import Head from "next/head";
+
+import BaseTemplate from "sources/components/templates/BaseTemplate";
 
 const Home: NextPage = () => {
   return (
-    <Container>
-        <Heading> Hello World </Heading>
-    </Container>
-  )
-}
+    <main>
+      <Head>
+        <title>Home</title>
+      </Head>
+      <BaseTemplate>
+        <Center height='100%'>
+          <Text> Todo: Show graphs </Text>
+        </Center>
+      </BaseTemplate>
+    </main>
+  );
+};
 
-export default Home
+export default Home;

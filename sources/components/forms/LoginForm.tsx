@@ -82,11 +82,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
             type="email"
             {...register("email", {
               required: "Email is required",
-              pattern: {
-                value:
-                  /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
-                message: "Email is not valid",
-              },
             })}
           />
           {errors.email !== undefined && (

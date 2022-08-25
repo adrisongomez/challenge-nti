@@ -1,4 +1,3 @@
-import { User } from "@prisma/client";
 import { object, string } from "yup";
 
 export type CreateUser = {
@@ -23,7 +22,6 @@ export const userSchema = object({
 })
 
 export type LoginResponse = {
-    user: User;
     accessToken: string;
     refreshToken: string;
 }

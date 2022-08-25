@@ -91,7 +91,6 @@ export default class UserController
     return {
       accessToken,
       refreshToken,
-      user,
     };
   }
 
@@ -118,7 +117,6 @@ export default class UserController
     return {
       accessToken,
       refreshToken,
-      user: user,
     };
   }
 }

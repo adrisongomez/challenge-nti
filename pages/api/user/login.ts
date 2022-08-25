@@ -19,12 +19,12 @@ const onPost: HandlerFunction<UserController> = async (
     const response = await controller.login(email, password);
     res.status(StatusCodes.OK).json(response);
   } catch (error) {
+    console.warn(error);
     if (typeof error === typeof new AuthenticationError()) {
       return res
         .status(StatusCodes.FORBIDDEN)
         .json({ error: "Not valid credentials" });
     }
-    console.warn(error);
     throw error;
   }
 };
