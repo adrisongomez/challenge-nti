@@ -10,11 +10,16 @@ type AuthenticationState = {
 };
 
 const initialState: {
-  context?: AuthenticationState;
+  context: AuthenticationState;
   setContext?: React.Dispatch<React.SetStateAction<AuthenticationState>>;
   signIn?: (data: LoginResponse) => void;
   signOut?: () => void;
-} = {};
+} = {
+  context: {
+    status: "LOGOUT",
+    accessToken: undefined,
+  },
+};
 
 export const AuthenticationContext = React.createContext(initialState);
 
@@ -25,7 +30,7 @@ interface AuthenticationProviderProps {
 export const AuthenticationProvider: React.FC<AuthenticationProviderProps> = ({
   children,
 }) => {
-  const router = useRouter()
+  const router = useRouter();
   const [context, setContext] = React.useState<AuthenticationState>({
     accessToken: undefined,
     status: "LOGOUT",
@@ -48,7 +53,7 @@ export const AuthenticationProvider: React.FC<AuthenticationProviderProps> = ({
     }));
     sessionStorage.removeItem("_auth");
     sessionStorage.removeItem("_authAccess");
-    router.push('/login')
+    router.push("/login");
   }, [router]);
 
   React.useEffect(() => {
@@ -61,6 +66,14 @@ export const AuthenticationProvider: React.FC<AuthenticationProviderProps> = ({
       }));
     }
   }, []);
+
+  // React.useEffect(() => {
+  //   const url = window.location.pathname;
+  //   if (url.includes("login")) return;
+  //   if (context.status != "LOGIN") {
+  //     router.push("/login");
+  //   }
+  // }, [context, router]);
 
   return (
     <AuthenticationContext.Provider

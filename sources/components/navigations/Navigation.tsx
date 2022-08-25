@@ -7,12 +7,12 @@ import { User, Archive } from "react-feather";
 
 const items: NavItem[] = [
   {
-    path: "/customer",
+    path: "/customers",
     label: "Customer",
     icon: <User size={16} color='white' />,
   },
   {
-    path: "/invoice",
+    path: "/invoices",
     label: "Invoice",
     icon: <Archive size={16} color='white' />
   },

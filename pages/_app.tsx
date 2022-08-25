@@ -2,6 +2,7 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { ChakraProvider } from "@chakra-ui/react";
 import { AuthenticationProvider } from "sources/providers/authentication";
+import React from "react";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   return (
