@@ -50,3 +50,4 @@ export JWT_SECRET_ACCESS="<value>"
 export JWT_SECRET_REFRESH="<value>"
 export SALT_ROUND=00000
 ```
+[UML diagram](https://drive.google.com/file/d/1VBfmPO6xGowaMsMPekpYyM4X78rfq8a_/view?usp=sharing)
